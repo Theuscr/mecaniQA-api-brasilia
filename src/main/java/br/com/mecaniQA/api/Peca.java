@@ -12,4 +12,5 @@ public class Peca {
     private Double precoVenda;
     private LocalDateTime dataCadastro;
     private LocalDateTime dataUltimaAtualizacao;
+    private CategoriaPeca categoriaPeca;
 }
