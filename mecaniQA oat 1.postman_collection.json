@@ -1,0 +1,209 @@
+{
+  "info": {
+    "_postman_id": "b2d281f5-2d2e-4d0d-accf-c935bb140edd",
+    "name": "mecaniQA oat 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49054546",
+    "_collection_link": "https://go.postman.co/collection/49054546-b2d281f5-2d2e-4d0d-accf-c935bb140edd?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "post api pecas",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nome\": \"Filtro de Óleo\",\r\n  \"codigoBarras\": \"789123456\",\r\n  \"fornecedorMarca\": \"Bosch\",\r\n  \"quantidadeEmEstoque\": 10,\r\n  \"precoCusto\": 20.0,\r\n  \"precoVenda\": 35.0,\r\n  \"categoriaPeca\": \"MOTOR\",\r\n  \"tamanho\": \"Padrão\",\r\n  \"cor\": \"Preto\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/pecas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "pecas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get listar pecas",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8081/api/pecas",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "pecas"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "put atualizar pecas",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"precoCusto\": 22.0,\r\n  \"precoVenda\": 40.0,\r\n  \"quantidadeEmEstoque\": 15\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/pecas/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "pecas",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete excluir pecas",
+      "request": {
+        "method": "DELETE",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "post api servicos",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nomeServico\": \"Troca de Óleo\",\r\n  \"tempoMinutos\": 30,\r\n  \"custoTabelado\": 50.0\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/servicos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "servicos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get listar servicos",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nomeServico\": \"Troca de Óleo\",\r\n  \"tempoMinutos\": 30,\r\n  \"custoTabelado\": 50.0\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/servicos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "servicos"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "put atualizar servicos",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"tempoMinutos\": 45,\r\n  \"custoTabelado\": 60.0\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/servicos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "servicos",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete excluir servicos",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"tempoMinutos\": 45,\r\n  \"custoTabelado\": 60.0\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8081/api/servicos/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8081",
+          "path": [
+            "api",
+            "servicos",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
