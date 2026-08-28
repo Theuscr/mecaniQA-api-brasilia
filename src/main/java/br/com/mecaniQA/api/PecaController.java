@@ -10,8 +10,8 @@ import java.util.List;
 @RequestMapping("/api/pecas") // Rota RESTful exigida no documento
 public class PecaController {
 
-    // Repare que NÃO estamos usando @Autowired, como o professor proibiu.
-    // Estamos acessando o repositório exclusivamente pelo getInstance() do Singleton.
+
+
     private PecaRepository repository = PecaRepository.getInstance();
 
     // US01: Cadastro de nova Peça
@@ -36,7 +36,7 @@ public class PecaController {
         if (peca != null) {
             return ResponseEntity.ok(peca); // 200 OK
         }
-        // Se não encontrar o ID, retorna 404 Not Found, como o PDF exige
+        // Se não encontrar o ID, retorna 404 Not Found
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
@@ -61,7 +61,7 @@ public class PecaController {
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         boolean deletado = repository.deletar(id);
         if (deletado) {
-            // Deleção bem sucedida retorna 204 No Content, conforme o PDF
+            // Deleção bem sucedida retorna 204 No Content
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found

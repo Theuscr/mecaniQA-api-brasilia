@@ -5,22 +5,22 @@ import java.util.List;
 
 public class ServicoRepository {
 
-    // 1. Instância única (Singleton)
+
     private static ServicoRepository instance;
 
-    // 2. Nossa lista em memória
+
     private List<Servico> servicos;
 
     // Variável para gerar o ID automático
     private long contadorId;
 
-    // 3. Construtor privado para impedir o uso de "new" em outras classes
+
     private ServicoRepository() {
         this.servicos = new ArrayList<>();
         this.contadorId = 1;
     }
 
-    // 4. Método exclusivo para acessar o repositório
+    //  Método exclusivo para acessar o repositório
     public static ServicoRepository getInstance() {
         if (instance == null) {
             instance = new ServicoRepository();
@@ -28,7 +28,7 @@ public class ServicoRepository {
         return instance;
     }
 
-    // --- MÉTODOS DO CRUD ---
+    // MÉTODOS DO CRUD
 
     // CREATE (Salvar novo serviço)
     public Servico salvar(Servico servico) {
