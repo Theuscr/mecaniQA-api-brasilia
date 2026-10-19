@@ -2,55 +2,73 @@ package br.com.mecaniQA.api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 @RestController
-@RequestMapping("/api/pecas") // Rota RESTful exigida no documento
+@RequestMapping("/api/pecas")
 public class PecaController {
-    private PecaRepository repository = PecaRepository.getInstance();
+    private PecaService service = PecaService.getInstance();
+
     // US01: Cadastro de nova Peça
     @PostMapping
-    public ResponseEntity<Peca> cadastrar(@RequestBody Peca peca) {
-        Peca pecaSalva = repository.salvar(peca);
-        // Retorna 201 Created conforme exigido para criação com sucesso
-        return ResponseEntity.status(HttpStatus.CREATED).body(pecaSalva);
-    }
-    // US02: Listar todas as peças cadastradas
-    @GetMapping
-    public ResponseEntity<List<Peca>> listarTodas() {
-        // Retorna 200 OK
-        return ResponseEntity.ok(repository.listarTodas());
-    }
-    // US02: Buscar uma peça específica pelo código
-    @GetMapping("/{id}")
-    public ResponseEntity<Peca> buscarPorId(@PathVariable Long id) {
-        Peca peca = repository.buscarPorId(id);
-        if (peca != null) {
-            return ResponseEntity.ok(peca); // 200 OK
+    public ResponseEntity<?> cadastrar(@RequestBody Peca peca) {
+        try {
+            Peca pecaSalva = service.cadastrar(peca);
+            return ResponseEntity.status(HttpStatus.CREATED).body(pecaSalva); // 201
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-        // Se não encontrar o ID, retorna 404 Not Found
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    // US02: Listar todas as peças
+    @GetMapping
+    public ResponseEntity<?> listarTodas() {
+        try {
+            return ResponseEntity.ok(service.listarTodas()); // 200
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
+        }
+    }
+
+    // US02: Buscar uma peça pelo código
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.buscarPorId(id)); // 200
+        } catch (PecaNaoEncontradaException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
+        }
+    }
+
     // US03: Atualizar peça (preços e quantidade)
     @PutMapping("/{id}")
-    public ResponseEntity<Peca> atualizar(@PathVariable Long id, @RequestBody Peca pecaAtualizada) {
-        Peca pecaExistente = repository.buscarPorId(id);
-        if (pecaExistente != null) {
-            // Atualiza apenas os campos permitidos na User Story 03
-            pecaExistente.setPrecoCusto(pecaAtualizada.getPrecoCusto());
-            pecaExistente.setPrecoVenda(pecaAtualizada.getPrecoVenda());
-            pecaExistente.setQuantidadeEmEstoque(pecaAtualizada.getQuantidadeEmEstoque());
-            return ResponseEntity.ok(pecaExistente); // 200 OK
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Peca pecaAtualizada) {
+        try {
+            return ResponseEntity.ok(service.atualizar(id, pecaAtualizada)); // 200
+        } catch (PecaNaoEncontradaException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
     }
+
     // US04: Excluir peça do catálogo
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        boolean deletado = repository.deletar(id);
-        if (deletado) {
-            // Deleção bem sucedida retorna 204 No Content
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<?> excluir(@PathVariable Long id) {
+        try {
+            service.excluir(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204
+        } catch (PecaNaoEncontradaException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400 (ex.: peça usada em um pedido)
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
     }
 }

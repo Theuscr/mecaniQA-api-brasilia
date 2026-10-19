@@ -23,7 +23,9 @@ public class OrdemServico {
         this.pecasUtilizadas = builder.pecasUtilizadas;
         this.dataAbertura = builder.dataAbertura;
     }
-
+    public static OrdemServicoBuilder builder() {
+        return new OrdemServicoBuilder();
+    }
 
     public static class OrdemServicoBuilder {
         private Long codigoUnico;
@@ -54,7 +56,10 @@ public class OrdemServico {
             this.status = status;
             return this;
         }
-
+        public OrdemServicoBuilder comDataAbertura(LocalDateTime dataAbertura) {
+            this.dataAbertura = dataAbertura;
+            return this;
+        }
         public OrdemServicoBuilder adicionarServico(Servico servico) {
             this.servicos.add(servico);
             return this;

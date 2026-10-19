@@ -1,49 +1,81 @@
 package br.com.mecaniQA.api;
-import java.util.ArrayList;
-import java.util.List;
-public class ServicoRepository {
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class ServicoRepository extends AbstractJdbcRepository<Servico, Long> {
+
     private static ServicoRepository instance;
-    private List<Servico> servicos;
-    // Variável para gerar o ID automático
-    private long contadorId;
+
     private ServicoRepository() {
-        this.servicos = new ArrayList<>();
-        this.contadorId = 1;
     }
-    //  Método exclusivo para acessar o repositório
+
     public static ServicoRepository getInstance() {
         if (instance == null) {
             instance = new ServicoRepository();
         }
         return instance;
     }
-    // MÉTODOS DO CRUD
-    // CREATE (Salvar novo serviço)
-    public Servico salvar(Servico servico) {
-        servico.setCodigoUnico(contadorId++);
-        servicos.add(servico);
-        return servico;
+
+    @Override
+    protected String sqlInsert() {
+        return "INSERT INTO servico (nome_servico, tempo_minutos, custo_tabelado, data_criacao, data_atualizacao) "
+                + "VALUES (?, ?, ?, ?, ?)";
     }
-    // READ (Listar todos os serviços)
-    public List<Servico> listarTodos() {
-        return servicos;
+
+    @Override
+    protected String sqlUpdate() {
+        return "UPDATE servico SET nome_servico = ?, tempo_minutos = ?, custo_tabelado = ?, "
+                + "data_criacao = ?, data_atualizacao = ? WHERE id = ?";
     }
-    // READ (Buscar serviço específico pelo código)
-    public Servico buscarPorId(long id) {
-        for (Servico servico : servicos) {
-            if (servico.getCodigoUnico() == id) {
-                return servico;
-            }
-        }
-        return null; // Retorna null se não encontrar
+
+    @Override
+    protected String sqlSelectById() {
+        return "SELECT " + ServicoRowMapper.colunas("s") + " FROM servico s WHERE s.id = ?";
     }
-    // DELETE (Remover serviço)
-    public boolean deletar(long id) {
-        Servico servico = buscarPorId(id);
-        if (servico != null) {
-            servicos.remove(servico);
-            return true;
-        }
-        return false;
+
+    @Override
+    protected String sqlSelectAll() {
+        return "SELECT " + ServicoRowMapper.colunas("s") + " FROM servico s ORDER BY s.id";
+    }
+
+    @Override
+    protected String sqlDeleteById() {
+        return "DELETE FROM servico WHERE id = ?";
+    }
+
+    @Override
+    protected String sqlExistsById() {
+        return "SELECT 1 FROM servico WHERE id = ?";
+    }
+
+    @Override
+    protected void preencherInsert(PreparedStatement ps, Servico servico) throws SQLException {
+        preencherCampos(ps, servico);
+    }
+
+    @Override
+    protected void preencherUpdate(PreparedStatement ps, Servico servico) throws SQLException {
+        preencherCampos(ps, servico);
+        ps.setLong(6, servico.getCodigoUnico());
+    }
+
+    @Override
+    protected Servico mapear(ResultSet rs) throws SQLException {
+        return ServicoRowMapper.mapear(rs);
+    }
+
+    @Override
+    protected void definirId(Servico servico, long idGerado) {
+        servico.setCodigoUnico(idGerado);
+    }
+
+    private void preencherCampos(PreparedStatement ps, Servico servico) throws SQLException {
+        ps.setString(1, servico.getNomeServico());
+        ps.setShort(2, servico.getTempoMinutos());
+        ps.setDouble(3, servico.getCustoTabelado());
+        JdbcUtil.gravarDataHora(ps, 4, servico.getDataCriacao());
+        JdbcUtil.gravarDataHora(ps, 5, servico.getDataAtualizacao());
     }
 }

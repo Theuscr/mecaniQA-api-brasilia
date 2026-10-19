@@ -2,52 +2,73 @@ package br.com.mecaniQA.api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/servicos") // Rota RESTful para serviços
+@RequestMapping("/api/servicos")
 public class ServicoController {
-    // Acessando o Singleton, sem usar @Autowired
-    private ServicoRepository repository = ServicoRepository.getInstance();
+    private ServicoService service = ServicoService.getInstance();
+
     // US05: Cadastro de novo Serviço
     @PostMapping
-    public ResponseEntity<Servico> cadastrar(@RequestBody Servico servico) {
-        Servico servicoSalvo = repository.salvar(servico);
-        return ResponseEntity.status(HttpStatus.CREATED).body(servicoSalvo); // 201 Created
+    public ResponseEntity<?> cadastrar(@RequestBody Servico servico) {
+        try {
+            Servico servicoSalvo = service.cadastrar(servico);
+            return ResponseEntity.status(HttpStatus.CREATED).body(servicoSalvo); // 201
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
+        }
     }
+
     // US06: Listar catálogo de serviços
     @GetMapping
-    public ResponseEntity<List<Servico>> listarTodos() {
-        return ResponseEntity.ok(repository.listarTodos()); // 200 OK
+    public ResponseEntity<?> listarTodos() {
+        try {
+            return ResponseEntity.ok(service.listarTodos()); // 200
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
+        }
     }
-    // US06: Buscar serviço específico pelo código
+
+    // US06: Buscar serviço pelo código
     @GetMapping("/{id}")
-    public ResponseEntity<Servico> buscarPorId(@PathVariable Long id) {
-        Servico servico = repository.buscarPorId(id);
-        if (servico != null) {
-            return ResponseEntity.ok(servico); // 200 OK
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.buscarPorId(id)); // 200
+        } catch (ServicoNaoEncontradoException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
     }
-    // US07: Atualizar serviço do catálogo (alterando tempo e custo)
+
+    // US07: Atualizar serviço (tempo e custo)
     @PutMapping("/{id}")
-    public ResponseEntity<Servico> atualizar(@PathVariable Long id, @RequestBody Servico servicoAtualizado) {
-        Servico servicoExistente = repository.buscarPorId(id);
-        if (servicoExistente != null) {
-            // Atualiza apenas os campos permitidos na User Story 07
-            servicoExistente.setTempoMinutos(servicoAtualizado.getTempoMinutos());
-            servicoExistente.setCustoTabelado(servicoAtualizado.getCustoTabelado());
-            return ResponseEntity.ok(servicoExistente); // 200 OK
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Servico servicoAtualizado) {
+        try {
+            return ResponseEntity.ok(service.atualizar(id, servicoAtualizado)); // 200
+        } catch (ServicoNaoEncontradoException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
     }
+
     // US08: Excluir serviço do catálogo
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        boolean deletado = repository.deletar(id);
-        if (deletado) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
+    public ResponseEntity<?> excluir(@PathVariable Long id) {
+        try {
+            service.excluir(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204
+        } catch (ServicoNaoEncontradoException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
     }
 }

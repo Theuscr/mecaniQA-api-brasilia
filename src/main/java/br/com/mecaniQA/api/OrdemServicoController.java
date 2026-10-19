@@ -4,58 +4,43 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/ordens-servico")
 public class OrdemServicoController {
 
-    private OrdemServicoRepository repository = OrdemServicoRepository.getInstance();
-
+    private OrdemServicoService service = OrdemServicoService.getInstance();
 
     @PostMapping
-    public ResponseEntity<OrdemServicoResponseDTO> criarOS(@RequestBody OrdemServicoRequestDTO requestDTO) {
-
-        OrdemServico novaOS = OrdemServicoMapper.toEntity(requestDTO);
-
-
-        OrdemServico osSalva = repository.salvar(novaOS);
-
-
-        OrdemServicoResponseDTO responseDTO = OrdemServicoMapper.toDTO(osSalva);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    public ResponseEntity<?> criarOS(@RequestBody OrdemServicoRequestDTO requestDTO) {
+        try {
+            OrdemServicoResponseDTO responseDTO = service.criar(requestDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO); // 201
+        } catch (DadosInvalidosException e) {
+            return RespostaHttp.requisicaoInvalida(e); // 400
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
+        }
     }
-
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<OrdemServicoResponseDTO> atualizarStatus(
+    public ResponseEntity<?> atualizarStatus(
             @PathVariable Long id,
             @RequestParam StatusOS novoStatus) {
-
-        OrdemServico osExistente = repository.buscarPorId(id);
-
-        if (osExistente != null) {
-            osExistente.setStatus(novoStatus);
-
-
-            return ResponseEntity.ok(OrdemServicoMapper.toDTO(osExistente));
+        try {
+            return ResponseEntity.ok(service.atualizarStatus(id, novoStatus)); // 200
+        } catch (OrdemServicoNaoEncontradaException e) {
+            return RespostaHttp.naoEncontrado(); // 404
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-
     @GetMapping
-    public ResponseEntity<List<OrdemServicoResponseDTO>> listarTodas() {
-        List<OrdemServico> ordens = repository.listarTodas();
-        List<OrdemServicoResponseDTO> dtos = new ArrayList<>();
-
-        for (OrdemServico os : ordens) {
-            dtos.add(OrdemServicoMapper.toDTO(os));
+    public ResponseEntity<?> listarTodas() {
+        try {
+            return ResponseEntity.ok(service.listarTodas()); // 200
+        } catch (PersistenciaException e) {
+            return RespostaHttp.erroInterno(e); // 500
         }
-
-        return ResponseEntity.ok(dtos);
     }
 }
